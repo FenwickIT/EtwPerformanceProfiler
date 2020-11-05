@@ -135,56 +135,81 @@ namespace EtwPerformanceProfiler
             get
             {
                 string objectType = this.callTree.Current.ObjectType;
-
-                // Empty object type consider to be the table.
-                // It should be empty only for the SQL queries.
-                if (string.IsNullOrEmpty(objectType))
+                if (TryGetObjectType(objectType, out var callTreeCurrentStatementOwningObjectType))
                 {
-                    return 0;
+                    return (int)callTreeCurrentStatementOwningObjectType;
                 }
 
-                if (0 == String.Compare(objectType, "Table", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 0;
-                }
-
-                if (0 == String.Compare(objectType, "Report", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 3;
-                }
-
-                if (0 == String.Compare(objectType, "CodeUnit", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 5;
-                }
-
-                if (0 == String.Compare(objectType, "XmlPort", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 6;
-                }
-
-                if (0 == String.Compare(objectType, "Page", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 8;
-                }
-
-                if (0 == String.Compare(objectType, "Query", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 9;
-                }
-
-                if (0 == String.Compare(objectType, "System", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 10;
-                }
-
-                if (0 == String.Compare(objectType, "PageExtension", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return 12;
-                }
-
-                throw new InvalidOperationException("Invalid object type.");
+                return (int) ObjectType.Unknown;
             }
+        }
+
+        private static bool TryGetObjectType(string objectType, out ObjectType objectTypeOut)
+        {
+            // Empty object type consider to be the table.
+            // It should be empty only for the SQL queries.
+            if (string.IsNullOrEmpty(objectType))
+            {
+                objectTypeOut = ObjectType.TableData;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "Table", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.Table;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "Report", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.Report;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "CodeUnit", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.Codeunit;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "XmlPort", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.XMLport;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "Page", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.Page;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "Query", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.Query;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "System", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.System;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "PageExtension", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.PageExtension;
+                return true;
+            }
+
+            if (0 == String.Compare(objectType, "TableExtension", System.StringComparison.OrdinalIgnoreCase))
+            {
+                objectTypeOut = ObjectType.TableExtension;
+                return true;
+            }
+
+            objectTypeOut = ObjectType.Unknown;
+            return false;
         }
 
         /// <summary>
