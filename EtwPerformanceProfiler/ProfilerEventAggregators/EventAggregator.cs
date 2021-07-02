@@ -6,6 +6,7 @@
 // FITNESS FOR A PARTICULAR PURPOSE.
 //--------------------------------------------------------------------------
 
+using System;
 using Microsoft.Diagnostics.Tracing;
 using System.Collections.Generic;
 
@@ -84,7 +85,7 @@ namespace EtwPerformanceProfiler
             return sessionId;
         }
 
-        protected ProfilerEvent? GetProfilerEvent(TraceEvent traceEvent)
+        protected ProfilerEvent? TryGetProfilerEvent(TraceEvent traceEvent)
         {
             string statement = "";
             EventType eventType = EventType.None;
@@ -92,115 +93,126 @@ namespace EtwPerformanceProfiler
             string objectType = string.Empty;
             int objectId = 0;
             int lineNo = 0;
+            int sessionId = 0;
 
-            int sessionId = GetSessionId(traceEvent);
-
-            switch ((int)traceEvent.ID)
+            try
             {
-                case NavEvents.ALFunctionStart:
-                    statement = (string)traceEvent.PayloadByName("functionName");
-                    objectType = (string)traceEvent.PayloadByName("objectType");
-                    objectId = (int)traceEvent.PayloadByName("objectId");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.AlEvent;
-                    break;
-                case NavEvents.ALFunctionStop:
-                    statement = (string)traceEvent.PayloadByName("functionName");
-                    objectType = (string)traceEvent.PayloadByName("objectType");
-                    objectId = (int)traceEvent.PayloadByName("objectId");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.AlEvent;
-                    break;
-                case NavEvents.ALFunctionStatement:
-                    statement = (string)traceEvent.PayloadByName("statement");
-                    objectType = (string)traceEvent.PayloadByName("objectType");
-                    objectId = (int)traceEvent.PayloadByName("objectId");
-                    lineNo = (int)traceEvent.PayloadByName("lineNumber");
-                    eventType = EventType.Statement;
-                    eventSubType = EventSubType.AlEvent;
-                    break;
-                case NavEvents.SqlExecuteScalarStart:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlExecuteScalarStop:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlExecuteNonQueryStart:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlExecuteNonQueryStop:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlExecuteReaderStart:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlExecuteReaderStop:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlReadNextResultStart:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlReadNextResultStop:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlReadNextRowStart:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlReadNextRowStop:
-                    statement = (string)traceEvent.PayloadByName("sqlStatement");
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlCommitStart:
-                    statement = "SQL COMMIT";
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.SqlCommitStop:
-                    statement = "SQL COMMIT";
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SqlEvent;
-                    break;
-                case NavEvents.CreateServiceSessionStart:
-                    statement = "Open Session: " + (string)traceEvent.PayloadByName("connectionType");
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SystemEvent;
-                    break;
-                case NavEvents.CreateServiceSessionStop:
-                    statement = "Open Session: " + (string)traceEvent.PayloadByName("connectionType"); ;
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SystemEvent;
-                    break;
-                case NavEvents.EndServiceSessionStart:
-                    statement = "Close Session: " + (string)traceEvent.PayloadByName("connectionType"); ;
-                    eventType = EventType.StartMethod;
-                    eventSubType = EventSubType.SystemEvent;
-                    break;
-                case NavEvents.EndServiceSessionStop:
-                    statement = "Close Session: " + (string)traceEvent.PayloadByName("connectionType"); ;
-                    eventType = EventType.StopMethod;
-                    eventSubType = EventSubType.SystemEvent;
-                    break;
-                default:
-                    return null;
+                sessionId = GetSessionId(traceEvent);
+
+                switch ((int) traceEvent.ID)
+                {
+                    case NavEvents.ALFunctionStart:
+                        statement = (string) traceEvent.PayloadByName("functionName");
+                        objectType = (string) traceEvent.PayloadByName("objectType");
+                        objectId = (int) traceEvent.PayloadByName("objectId");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.AlEvent;
+                        break;
+                    case NavEvents.ALFunctionStop:
+                        statement = (string) traceEvent.PayloadByName("functionName");
+                        objectType = (string) traceEvent.PayloadByName("objectType");
+                        objectId = (int) traceEvent.PayloadByName("objectId");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.AlEvent;
+                        break;
+                    case NavEvents.ALFunctionStatement:
+                        statement = (string) traceEvent.PayloadByName("statement");
+                        objectType = (string) traceEvent.PayloadByName("objectType");
+                        objectId = (int) traceEvent.PayloadByName("objectId");
+                        lineNo = (int) traceEvent.PayloadByName("lineNumber");
+                        eventType = EventType.Statement;
+                        eventSubType = EventSubType.AlEvent;
+                        break;
+                    case NavEvents.SqlExecuteScalarStart:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlExecuteScalarStop:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlExecuteNonQueryStart:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlExecuteNonQueryStop:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlExecuteReaderStart:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlExecuteReaderStop:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlReadNextResultStart:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlReadNextResultStop:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlReadNextRowStart:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlReadNextRowStop:
+                        statement = (string) traceEvent.PayloadByName("sqlStatement");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlCommitStart:
+                        statement = "SQL COMMIT";
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.SqlCommitStop:
+                        statement = "SQL COMMIT";
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SqlEvent;
+                        break;
+                    case NavEvents.CreateServiceSessionStart:
+                        statement = "Open Session: " + (string) traceEvent.PayloadByName("connectionType");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SystemEvent;
+                        break;
+                    case NavEvents.CreateServiceSessionStop:
+                        statement = "Open Session: " + (string) traceEvent.PayloadByName("connectionType");
+                        ;
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SystemEvent;
+                        break;
+                    case NavEvents.EndServiceSessionStart:
+                        statement = "Close Session: " + (string) traceEvent.PayloadByName("connectionType");
+                        eventType = EventType.StartMethod;
+                        eventSubType = EventSubType.SystemEvent;
+                        break;
+                    case NavEvents.EndServiceSessionStop:
+                        statement = "Close Session: " + (string) traceEvent.PayloadByName("connectionType");
+                        eventType = EventType.StopMethod;
+                        eventSubType = EventSubType.SystemEvent;
+                        break;
+                    default:
+                        return null;
+                }
+            }
+            catch (Exception e)
+            {
+                // todo surface these issues somehow
+                // todo improve parsing code to proactively check types instead of try and throw, as throwing and catching exceptions is comparitively expensive
+                return null;
             }
 
             return new ProfilerEvent
@@ -214,8 +226,6 @@ namespace EtwPerformanceProfiler
                 StatementName = GetStatementFromTheCache(statement),
                 TimeStampRelativeMSec = traceEvent.TimeStampRelativeMSec
             };
-
         }
-
     }
 }

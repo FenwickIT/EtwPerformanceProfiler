@@ -137,7 +137,7 @@ namespace EtwPerformanceProfiler
                 return;
             }
 
-            ProfilerEvent? currentProfilerEvent = GetProfilerEvent(traceEvent);
+            ProfilerEvent? currentProfilerEvent = TryGetProfilerEvent(traceEvent);
 
             if (currentProfilerEvent == null || 
                 currentProfilerEvent.Value.SessionId != this.profilingSessionId)
